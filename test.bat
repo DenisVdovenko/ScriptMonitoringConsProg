@@ -11,23 +11,13 @@ start "" /MIN "new.bat" %myprog% %Process_Path% %Process_Name% %Process_Param% %
 rem ---Основное ядро скрипта
 :loop
 timeout /t 3
-for /F "delims=" %%R in ('
-    tasklist /FI "WindowTitle eq %myprog%" /FI "Status eq Running" /FO CSV /NH
-') do (
-    set "FLAG1=" & set "FLAG2="
-    for %%C in (%%R) do (
-        if defined FLAG1 (
-            if not defined FLAG2 (
-				@Set "PID=%%C"
-            )
-            set "FLAG2=#"
-        )
-        set "FLAG1=#"
-    )
-)
-if "%PID%"=="No" goto end
+for /F "tokens=2" %%I in ('
+    tasklist /FI "WindowTitle eq %myprog%" /FO TABLE /NH
+') do set PID=%%I
+set/p="%PID%"<nul|>nul findstr [^^0-9]&& goto end || (
 echo Program %Process_Name% works with PID %PID%
 goto loop
+)
 :end
 cls
 echo Program %Process_Name% has finished work.
